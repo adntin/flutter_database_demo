@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: const MyHomePage(title: 'Home Page'),
     );
   }
 }
@@ -40,18 +40,78 @@ class _MyHomePageState extends State<MyHomePage> {
   void _put() async {
     final newUser = User()
       ..name = 'Jane Doe'
-      ..age = 36;
+      ..age = 36
+      ..createTime = DateTime.now();
     await Database.instance.writeTxn(() async {
       await Database.instance.users.put(newUser); // 将新用户数据写入到 Isar
+      load();
+    });
+  }
+
+  void _delete(int id) {
+    showDialog(
+      context: context,
+      builder: (BuildContext ctx) {
+        return AlertDialog(
+          title: const Text('Please Confirm'),
+          content: const Text('Are you sure to remove the record?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await Database.instance.writeTxn(() async {
+                  await Database.instance.users.delete(id);
+                  load();
+                });
+              },
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _get(int id) async {
+    User? user = await Database.instance.users.get(id);
+    if (context.mounted) {
+      showDialog(
+        context: context,
+        builder: (BuildContext ctx) {
+          return AlertDialog(
+            title: Text(user!.name!),
+            content: Text('id: ${user.id}, age: ${user.age}'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  void load() async {
+    List<User> items = await Database.instance.users.where().findAll();
+    setState(() {
+      users = items;
     });
   }
 
   @override
   void initState() {
     super.initState();
-    Database.instance.users.where().findAll().then((value) {
-      setState(() => users = value);
-    });
+    load();
   }
 
   @override
@@ -61,15 +121,24 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              users == null ? '正在读取数据库' : 'Users count: ${users!.length}',
+      body: ListView.builder(
+        itemCount: users?.length,
+        itemBuilder: (BuildContext context, int index) {
+          if (users == null) {
+            return null;
+          }
+          User user = users![index];
+          return ListTile(
+            leading: CircleAvatar(child: Text(user.id.toString())),
+            title: Text(user.name!),
+            subtitle: Text(user.createTime.toString()),
+            trailing: InkWell(
+              child: const Icon(Icons.delete_outline),
+              onTap: () => _delete(user.id),
             ),
-          ],
-        ),
+            onTap: () => _get(user.id),
+          );
+        },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _put,

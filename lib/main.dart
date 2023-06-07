@@ -130,25 +130,65 @@ class _MyHomePageState extends State<MyHomePage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
       ),
-      body: ListView.builder(
-        itemCount: users?.length,
-        itemBuilder: (BuildContext context, int index) {
-          if (users == null) {
-            return null;
-          }
-          User user = users![index];
-          return ListTile(
-            leading: CircleAvatar(child: Text(user.id.toString())),
-            title: Text(user.name!),
-            subtitle: Text(user.createTime.toString()),
-            trailing: InkWell(
-              child: const Icon(Icons.delete_outline),
-              onTap: () => _delete(user.isarId),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: users?.length,
+              itemBuilder: (BuildContext context, int index) {
+                if (users == null) {
+                  return null;
+                }
+                User user = users![index];
+                return ListTile(
+                  leading: CircleAvatar(child: Text(user.id.toString())),
+                  title: Text(user.name!),
+                  subtitle: Text(user.createTime.toString()),
+                  trailing: InkWell(
+                    child: const Icon(Icons.delete_outline),
+                    onTap: () => _delete(user.isarId),
+                  ),
+                  onTap: () => _get(user.isarId),
+                );
+              },
             ),
-            onTap: () => _get(user.isarId),
-          );
-        },
+          ),
+          // SafeArea(
+          //   child: ElevatedButton(
+          //     onPressed: _handleMultiIsolate,
+          //     child: const Text('Multi Isolate'),
+          //   ),
+          // ),
+        ],
       ),
+      // body: Column(
+      //   children: [
+      //     // ListView.builder(
+      //     //   itemCount: users?.length,
+      //     //   itemBuilder: (BuildContext context, int index) {
+      //     //     if (users == null) {
+      //     //       return null;
+      //     //     }
+      //     //     User user = users![index];
+      //     //     return ListTile(
+      //     //       leading: CircleAvatar(child: Text(user.id.toString())),
+      //     //       title: Text(user.name!),
+      //     //       subtitle: Text(user.createTime.toString()),
+      //     //       trailing: InkWell(
+      //     //         child: const Icon(Icons.delete_outline),
+      //     //         onTap: () => _delete(user.isarId),
+      //     //       ),
+      //     //       onTap: () => _get(user.isarId),
+      //     //     );
+      //     //   },
+      //     // ),
+      //     ElevatedButton(
+      //       onPressed: _handleMultiIsolate,
+      //       child: const Text('Multi Isolate'),
+      //     ),
+      //   ],
+      // ),
       floatingActionButton: FloatingActionButton(
         onPressed: _put,
         tooltip: 'Insert or Update',

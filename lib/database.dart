@@ -12,6 +12,7 @@ class Database {
     _instance = await Isar.open(
       [UserSchema],
       directory: dir.path,
+      name: 'my_database',
     );
   }
 }

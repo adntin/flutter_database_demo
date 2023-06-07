@@ -38,9 +38,18 @@ class _MyHomePageState extends State<MyHomePage> {
   List<User>? users;
 
   void _put() async {
+    final address = Address()
+      ..country = "中国"
+      ..province = "福建"
+      ..city = "厦门"
+      ..street = "xx街道xx小区xx楼xx室"
+      ..post = "361000";
     final newUser = User()
+      ..id = DateTime.now().millisecondsSinceEpoch.toString()
       ..name = 'Jane Doe'
       ..age = 36
+      ..gender = Gender.male
+      ..address = address
       ..createTime = DateTime.now();
     await Database.instance.writeTxn(() async {
       await Database.instance.users.put(newUser); // 将新用户数据写入到 Isar
@@ -134,9 +143,9 @@ class _MyHomePageState extends State<MyHomePage> {
             subtitle: Text(user.createTime.toString()),
             trailing: InkWell(
               child: const Icon(Icons.delete_outline),
-              onTap: () => _delete(user.id),
+              onTap: () => _delete(user.isarId),
             ),
-            onTap: () => _get(user.id),
+            onTap: () => _get(user.isarId),
           );
         },
       ),
